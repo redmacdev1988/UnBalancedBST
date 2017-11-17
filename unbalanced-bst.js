@@ -1,9 +1,16 @@
 
+
 var TRAVERSAL = {
   PREORDER: 1,
   INORDER: 2,
   POSTORDER: 3,
 };
+
+
+
+/***************************************
+  NODE OBJECT WE USE TO CREATE OUR TREE
+****************************************/
 
 function treeNode(left, newData, right) {
     // this = {}
@@ -28,6 +35,19 @@ function treeNode(left, newData, right) {
     // return this
 }
 
+
+
+/***************************************
+  UnBalancedBST
+
+  - insert into tree
+  - remove from tree
+  - print (inorder, preorder, postorder)
+  - create balanced tree
+  - check for balanceness
+  - search for node in tree
+  - show how many steps it took for the search
+****************************************/
 function UnBalancedBST() {
     var head = null;
     var numOfStepsForSearch = 0;
@@ -35,11 +55,14 @@ function UnBalancedBST() {
     this.displayNumOfStepsForSearch = function() {
       return numOfStepsForSearch;
     }
-    /***
-    *
-    *  SEARCH THE TREE
-    *
-    ****/
+
+    this.getRoot = function() {
+      return head;
+    }
+
+    /***************************************
+            SEARCHING IN TREE
+    ****************************************/
 
     // PRIVATE
     // O(n)
@@ -67,11 +90,9 @@ function UnBalancedBST() {
         }
      }
 
-    /***
-    *
-    *  INSERTING INTO TREE
-    *
-    ****/
+     /***************************************
+             INSERTING INTO THE TREE
+     ****************************************/
 
     // PRIVATE
     function traverseInsertion(numberToInsert, node) {
@@ -95,11 +116,9 @@ function UnBalancedBST() {
         }
     };
 
-    /***
-    *
-    *  PRINTING TREE FUNCTIONS
-    *
-    ****/
+    /***************************************
+            PRINTING THE TREE
+    ****************************************/
 
     // PRIVATE
     function inOrderPrint(node) {
@@ -150,35 +169,110 @@ function UnBalancedBST() {
         }
     };
 
-    /***
-    *
-    *  REMOVING INTO TREE
-    *
-    ****/
+
+    /***************************************
+            CREATING A BALANCED TREE
+    ****************************************/
+
+    // PRIVATE
+    function inOrderToArray(node, array) {
+        if (node == null) return;
+        inOrderToArray(node.left, array);
+        array.push(node.data);
+        inOrderToArray(node.right, array);
+    }
+
+    // PUBLIC
+    // Convert an inordered tree to a sorted array
+    this.flattenInOrderToSortedArray = function() {
+      var sortedArray = [];
+      if (head) {
+          inOrderToArray(head, sortedArray);
+      }
+      return sortedArray;
+    }
+
+    // PRIVATE
+    // Build a balanced tree from the sorted array
+    // where the left/right node takes on the mid of
+    // the left/right sides of the array.
+    function buildBalancedTree(array) {
+        if (array.length == 0) { return null; }
+
+        var mid = Math.floor((array.length)/2);
+        var n = new treeNode(null, array[mid], null);
+
+        var arrayOnLeft = array.slice(0, mid);
+        n.left = buildBalancedTree(arrayOnLeft);
+
+        var arrayOnRight= array.slice(mid+1);
+        n.right = buildBalancedTree(arrayOnRight);
+
+        return n;
+    }
+
+    // PUBLIC
+    // convert the incoming array into a balanced tree
+    this.sortedArrayToBalancedTree = function(array) {
+        if (head) {
+            return buildBalancedTree(array);
+        }
+        return null;
+    };
+
+
+    /***************************************
+            BALANCENESS OF A TREE
+    ***************************************/
+
+    // PRIVATE
+    // will send 'false' to callback for any unbalanceness
+    function countBalance(node, balancedCallBack) {
+        if (node == null) { return -1; }
+            var leftCount = 1 + countBalance(node.left, balancedCallBack);
+            var rightCount = 1 + countBalance(node.right, balancedCallBack);
+
+            if (Math.abs(leftCount-rightCount) > 1) {
+              console.log("Not balanced at: " + node.data);
+              balancedCallBack(false);
+            }
+            else { console.log("Balanced at " + node.data); }
+
+            return (leftCount >= rightCount) ? leftCount : rightCount;
+    }
+
+    // PUBLIC
+    // Checks to see if an unbalanceness exist in the tree
+    this.checkForBalanceness = function(balancedTree) {
+      var balancenessExist = true;
+      countBalance(balancedTree, function(balanced = true) {
+        if (balanced == false) { balancenessExist = balanced }
+      });
+
+      console.log("Does Balancess Exist? : " + balancenessExist);
+    }
+
+    /***************************************
+            REMOVING FROM THE TREE
+    ***************************************/
+
+    // PUBLIC
+    // if we're removing the root, we take care of it here.
+    // if we remove from anywhere else, we use traverseRemove
     this.remove = function(number) {
       console.log("Let's remove: " + number);
 
       if (head) {
-            console.log("Head " + head.data + " is valid");
-
-          if (head.data == number && (head.left == null && head.right != null)) {
-              console.log("we need to remove root. Where left is null, right is valid");
-              var temp = head;
-              head = head.right;
-              temp.delete();
+          if (head.data == number && rightChildOnly(head)) {
+              var temp = head; head = head.right; temp.delete();
               return head;
           }
-          else if (head.data == number && (head.left != null && head.right == null)) {
-              console.log("we need to remove root. Where right is null, left is valid");
-              var temp = head;
-              head = head.left;
-              temp.delete();
+          else if (head.data == number && leftChildOnly(head)) {
+              var temp = head; head = head.left; temp.delete();
               return head;
           }
-          else if (head.data == number && (head.left == null && head.right == null)) {
-              console.log("We want to remove root, left and right both are valid.")
-              head.delete();
-              head = null;
+          else if (head.data == number && noChildren(head)) {
+              head.delete(); head = null;
               return head;
           }
           return this.traverseRemove(number, head);
@@ -187,13 +281,16 @@ function UnBalancedBST() {
       }
     };
 
+    //PRIVATE
+    // Finds the minimum of sub-tree and delete it
     function deleteMinimum(node, removeCallBack) {
-        if (node.left == null && node.right == null) {
+
+        if (noChildren(node)) {
             removeCallBack(node);
             return null;
         }
 
-        if (node.left == null && node.right != null) {
+        if (rightChildOnly(node)) {
             removeCallBack(node);
             return node.right;
         }
@@ -204,15 +301,28 @@ function UnBalancedBST() {
         }
     }
 
+    //PRIVATE UTILITY FOR CHECKING NODE'S CHILDREN EXISTENCE
 
+    function noChildren(node) {
+        return (node.left == null && node.right == null);
+    }
+    function leftChildOnly(node) {
+        return (node.left != null && node.right == null);
+    }
+    function rightChildOnly(node) {
+      return (node.left == null && node.right != null);
+    }
+    function bothChildExist(node) {
+      return (node.left != null && node.right != null);
+    }
+
+    // PUBLIC
+    //
     this.traverseRemove = function (number, node) {
-
         if (node == null) {
             console.log("You're at leaf end, null. Number " + number + " not found. :P )");
             return null;
         }
-
-        console.log("traverseRemove on node: " + node.data);
         if (number > node.data) {
             node.right = this.traverseRemove(number, node.right);
             return node;
@@ -220,44 +330,26 @@ function UnBalancedBST() {
             node.left = this.traverseRemove(number, node.left);
             return node;
         } else if (number == node.data) {
-
-            console.log("Found node to remove! number == " + node.data);
-            if (node.left == null && node.right == null) {
-                console.log("no children, simple removal");
-                node.delete();
-                return null;
+            if (noChildren(node)) {
+                node.delete(); return null;
             }
-
-            if (node.left != null && node.right == null) {
-                console.log("Has left child. Connect to left node");
-                var leftNodeRef = node.left;
-                node.delete();
-                return leftNodeRef;
+            if (leftChildOnly(node)) {
+                var leftNodeRef = node.left; node.delete(); return leftNodeRef;
             }
-
-            if (node.left == null && node.right != null) {
-                console.log("Has right child. Connect to right node");
-                var rightNodeRef = node.right;
-                node.delete();
-                return rightNodeRef;
+            if (rightChildOnly(node)) {
+                var rightNodeRef = node.right; node.delete(); return rightNodeRef;
             }
-
-            if (node.left && node.right) {
-                console.log("BOTH nodes exist...!");
+            if (bothChildExist(node)) {
                 var nodeToDelete;
-
                 node.right = deleteMinimum(node.right, function(toRemove){
                     node.data = toRemove.data;
                     nodeToDelete = toRemove;
                 });
-                console.log("node.right assigned. Safe to delete toRemove node");
                 nodeToDelete.delete();
                 return node;
             }
         } // FOUND
-    }
-
-
+    } // traverseRemove function
 
 }
 
@@ -266,28 +358,49 @@ UnBalancedBST.CreateObject = function() {
 }
 
 var myBST = UnBalancedBST.CreateObject();
+myBST.insert(50);
+myBST.insert(40);
+myBST.insert(30);
+myBST.insert(45);
+myBST.insert(90);
+myBST.insert(82);
+myBST.insert(96);
+myBST.insert(98);
+myBST.insert(99);
+myBST.print(TRAVERSAL.INORDER);
 
-function randomNumberOfZeros() { return Math.ceil(Math.random() * 10); }
-function generateRandomNumber() { return Math.floor(Math.random() * Math.pow(10, randomNumberOfZeros())); }
+console.log("------ Change unbalanced tree into a balanced tree -------");
+var array = myBST.flattenInOrderToSortedArray();
+var balancedTree = myBST.sortedArrayToBalancedTree(array);
 
-var searchTestValue;
+myBST.checkForBalanceness(balancedTree);
 
-for (var i = 0; i < 1000000; i++) {
-    var random = generateRandomNumber();
-    if (i == Math.ceil(1000000/2)) {
-      searchTestValue = random;
-      console.log("USING " + searchTestValue + " AS SEARCH VALUE");
-    }
-    myBST.insert(random);
-}
+console.log("===== Test the Balanceness of the Original Tree");
+myBST.checkForBalanceness(myBST.getRoot());
 
-//myBST.print(TRAVERSAL.INORDER);
-console.log("JUST CREATED a tree with a million nodes");
+myBST.remove(90);
+myBST.print(TRAVERSAL.INORDER);
 
-console.log("let's search for: " + searchTestValue);
-var node = myBST.search(searchTestValue);
+myBST.remove(40);
+myBST.print(TRAVERSAL.INORDER);
 
-if(node) {
-  console.log("found value: " + node.data);
-  console.log("Search took total of " + myBST.displayNumOfStepsForSearch() + " number of steps.");
-}
+myBST.remove(50);
+myBST.print(TRAVERSAL.INORDER);
+
+myBST.remove(45);
+myBST.print(TRAVERSAL.INORDER);
+
+myBST.remove(30);
+myBST.print(TRAVERSAL.INORDER);
+
+myBST.remove(82);
+myBST.print(TRAVERSAL.INORDER);
+
+myBST.remove(98);
+myBST.print(TRAVERSAL.INORDER);
+
+myBST.remove(99);
+myBST.print(TRAVERSAL.INORDER);
+
+myBST.remove(96);
+myBST.print(TRAVERSAL.INORDER);
