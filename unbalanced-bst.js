@@ -125,11 +125,11 @@ function UnBalancedBST() {
         if (node == null) return;
         inOrderPrint(node.left);
         if (head == node) {
-          console.log("==================== HEAD =========================");
+          console.log("===============  HEAD  ==================");
         }
         node.display();
         if (head == node) {
-          console.log("===================== ========================")
+          console.log("=============================================")
         }
         inOrderPrint(node.right);
     }
@@ -231,13 +231,9 @@ function UnBalancedBST() {
         if (node == null) { return -1; }
             var leftCount = 1 + countBalance(node.left, balancedCallBack);
             var rightCount = 1 + countBalance(node.right, balancedCallBack);
-
             if (Math.abs(leftCount-rightCount) > 1) {
-              console.log("Not balanced at: " + node.data);
-              balancedCallBack(false);
+              balancedCallBack(false, node);
             }
-            else { console.log("Balanced at " + node.data); }
-
             return (leftCount >= rightCount) ? leftCount : rightCount;
     }
 
@@ -245,8 +241,10 @@ function UnBalancedBST() {
     // Checks to see if an unbalanceness exist in the tree
     this.checkForBalanceness = function(balancedTree) {
       var balancenessExist = true;
-      countBalance(balancedTree, function(balanced = true) {
-        if (balanced == false) { balancenessExist = balanced }
+      countBalance(balancedTree, function(balanced = true, node) {
+        if (balanced == false) {
+          balancenessExist = balanced
+        }
       });
 
       console.log("Does Balancess Exist? : " + balancenessExist);
@@ -316,6 +314,8 @@ function UnBalancedBST() {
       return (node.left != null && node.right != null);
     }
 
+
+
     // PUBLIC
     //
     this.traverseRemove = function (number, node) {
@@ -351,6 +351,31 @@ function UnBalancedBST() {
         } // FOUND
     } // traverseRemove function
 
+
+    //The height of a binary tree is the number of edges between the tree's root
+    // and its furthest leaf node. This means that a tree containing a single node has a height of 0.
+
+    // inner function, cannot access parent scope's this
+    function getHeight(node) {
+        if (node == null) return 0;
+        if (node.left == null && node.right == null) { return 0; }
+        var leftCount, rightCount = 0; // at every node, we begin with 0
+
+        // if the left exist, we count the edge
+        if (node.left) { leftCount = getHeight(node.left) + 1; }
+
+        // right right exist, we count the edge
+        if (node.right) { rightCount = getHeight(node.right) + 1; }
+
+        return (leftCount > rightCount) ? leftCount : rightCount;
+    }
+
+    // GET HEIGHT OF Tree
+    this.height = function() {
+        if (head) {
+          return getHeight(head);
+        }
+    }
 }
 
 UnBalancedBST.CreateObject = function() {
@@ -369,6 +394,9 @@ myBST.insert(98);
 myBST.insert(99);
 myBST.print(TRAVERSAL.INORDER);
 
+console.log("height of tree is:");
+console.log(myBST.height());
+/*
 console.log("------ Change unbalanced tree into a balanced tree -------");
 var array = myBST.flattenInOrderToSortedArray();
 var balancedTree = myBST.sortedArrayToBalancedTree(array);
@@ -404,3 +432,4 @@ myBST.print(TRAVERSAL.INORDER);
 
 myBST.remove(96);
 myBST.print(TRAVERSAL.INORDER);
+*/
