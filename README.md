@@ -37,7 +37,7 @@ There is a problem. What if we enter 30, 20, 10, 8, 6, 4, 2, 60. The tree would 
 
 This is basically a linked list. So as we can see, if we were to enter a root node that is very much larger ( or smaller ) than the rest of the data sample, our tree would deteriorate into a list. And as we know searching a list is always O(n). Thus, we lose the capability of a tree and kind of resort back to using a linked list. This is not what we want. This issue is called an Unbalanced Tree.
 
-But first let us define what is a balanced tree: A binary tree is balanced if for any two leaves the difference of the depth is at most 1.
+But first let us define what is a balanced tree: A binary tree is balanced if for any two leaves the difference of the depth is at most 1. (leaf node is any tree node that DOES NOT have a child node).
 
 Hence an example of "unbalanced" tree would be if we were to insert 50 40 30 20 60. On the left side we have 20, 30, 40, 50, which has a depth of 3. On the right side we have 50 and 60, with a depth of 1. There is a difference of 2, and thus, means this tree is unbalanced.
 
@@ -58,3 +58,17 @@ When we are working with a data sample, there is almost no way to know which ite
             20
 
 will be converted to array [20 30 40 50 60]
+
+Then we build a tree with this array using the middle element as the node, then have the left points to the left side of the middle element. Similarly, point the right to the right side of the middle element.
+
+In our example, we create a tree node and its value would be 40. The tree node's left would reference array [20 30]. The tree node's right would reference array [50 60].
+
+Recursively working through it, we're on the left side: [20 30]. The middle is 20 (we use Math.floor), so we create a Node with value 20. Left is null. Right points to 30. ....etc.
+
+Finally, we are then left with this:
+
+              40
+            20  50   
+          30      60
+
+By definition, this is a balanced tree because for any 2 leaf nodes, the difference (0) < 1.
