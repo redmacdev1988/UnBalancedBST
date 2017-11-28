@@ -26,13 +26,13 @@ The search time is O (log n) because we cut the tree in half at every step of th
 # Balanced Tree
 
 There is a problem. What if we enter 30, 20, 10, 8, 6, 4, 2, 60. The tree would look like this:
-            30
-          20  60
-        10
-      8
-    6
-  4
-2
+                 30
+               20  60
+            10
+          8
+        6
+      4
+    2
 
 This is basically a linked list. So as we can see, if we were to enter a root node that is very much larger ( or smaller ) than the rest of the data sample, our tree would deteriorate into a list. And as we know searching a list is always O(n). Thus, we lose the capability of a tree and kind of resort back to using a linked list. This is not what we want. This issue is called an Unbalanced Tree.
 
@@ -40,10 +40,10 @@ But first let us define what is a balanced tree: A binary tree is balanced if fo
 
 Hence an example of "unbalanced" tree would be if we were to insert 50 40 30 20 60. On the left side we have 20, 30, 40, 50, which has a depth of 3. On the right side we have 50 and 60, with a depth of 1. There is a difference of 2, and thus, means this tree is unbalanced.
 
-      50
-    40  60
-  30
-20
+          50
+        40  60
+      30
+    20
 
 Therefore, Balanceness and Unbalanceness is to make sure that we carry on with using a binary tree and that it does not deteriorate into a list.
 
@@ -51,9 +51,9 @@ When we are working with a data sample, there is almost no way to know which ite
 
 1) Going depth first search, we use in order traversal to push items onto an array.
 
-      50
-    40  60
-  30
-20
+          50
+        40  60
+      30
+    20
 
 will be converted to array [20 30 40 50 60]
