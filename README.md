@@ -50,7 +50,7 @@ Therefore, Balanceness and Unbalanceness is to make sure that we carry on with u
 
 When we are working with a data sample, there is almost no way to know which item in the data set is smack middle of the data range. Thus, what we do is to simply create a tree with what data sample we have. Usually, it will have a bit of unbalanceness to it. We then convert the unbalanced tree into a balanced tree like so:
 
-1) Going depth first search, we use in order traversal to push items onto an array.
+Going depth first search, we use in order traversal to push items onto an array.
 
                   50
                 40  60
